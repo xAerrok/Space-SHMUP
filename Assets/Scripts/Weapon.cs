@@ -112,8 +112,6 @@ public class Weapon : MonoBehaviour
 
         switch (type)
         {
-            case eWeaponType.phaser:
-            case eWeaponType.missile:
             case eWeaponType.blaster:
                 p = MakeProjectile();
                 p.vel = vel;
@@ -136,6 +134,20 @@ public class Weapon : MonoBehaviour
                 p.vel = p.transform.rotation * vel;
                 break;
 
+            case eWeaponType.phaser:
+                p = MakeProjectile();
+                p.PhaserWake(false);
+                p.vel = vel;
+                p = MakeProjectile();
+                p.PhaserWake(true);
+                p.vel = vel;
+                break;
+
+            case eWeaponType.missile:
+                p = MakeProjectile();
+                p.vel = vel;
+                break;
+
             case eWeaponType.swivel:
                 GameObject[] gos = GameObject.FindGameObjectsWithTag("Enemy");
                 if (gos.Length == 0) break;
@@ -148,11 +160,11 @@ public class Weapon : MonoBehaviour
                         tmp = go;
                     }
                 }
-                // Needs adjustment for accuracy
-                Quaternion angle = Quaternion.Euler(0, 0,
-                    Mathf.Atan2(tmp.transform.position.x, 
-                    tmp.transform.position.y));
-                p.transform.rotation = angle;
+                float angle = 
+                    Mathf.Atan2(tmp.transform.position.x - p.transform.position.x, 
+                    tmp.transform.position.y-p.transform.position.y) * Mathf.Rad2Deg;
+                p.transform.rotation = Quaternion.Euler(0, 0, -angle);
+                Debug.Log(angle);
                 
                 p.vel = p.transform.rotation * vel;
                 break;

@@ -21,7 +21,7 @@ public class WeaponMissile : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetButton("Fire1"))
+        if (Input.GetButton("Jump"))
         {
             tracking = true;
             targetGuide.enabled = true;
@@ -44,7 +44,7 @@ public class WeaponMissile : MonoBehaviour
                 if (targetedEnemy != null)
                 {
                     targetGuide.enabled = false;
-                    FireMissile(targetedEnemy);
+                    ProjectileHero p;
                     targetedEnemy = null;
                 }
             }

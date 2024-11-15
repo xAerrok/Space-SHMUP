@@ -13,6 +13,8 @@ public class Hero : MonoBehaviour
     public GameObject projectilePrefab;
     public float projectileSpeed = 40;
     public Weapon[] weapons;
+    public Joystick joystick;
+    private Touch touch;
 
     [Header("Dynamic")] [Range(0, 4)]
     private float _shieldLevel = 1;
@@ -30,7 +32,7 @@ public class Hero : MonoBehaviour
             Debug.LogError("HeroAwake() - Attempted to assign second Hero.S");
         }
         ClearWeapons();
-        weapons[0].SetType(eWeaponType.swivel);
+        weapons[0].SetType(eWeaponType.phaser);
         weaponsNum++;
     }
 
@@ -38,8 +40,11 @@ public class Hero : MonoBehaviour
     void Update()
     {
         // Pull in information from the Input class
-        float hAxis = Input.GetAxis("Horizontal");
-        float vAxis = Input.GetAxis("Vertical");
+        //float hAxis = Input.GetAxis("Horizontal");
+        float hAxis = joystick.Horizontal;
+        //float vAxis = Input.GetAxis("Vertical");
+        float vAxis = joystick.Vertical;
+
 
         // Change transform.position based on the axes
         Vector3 pos = transform.position;
@@ -51,10 +56,8 @@ public class Hero : MonoBehaviour
         transform.rotation = Quaternion.Euler(vAxis * pitchMult, hAxis * rollMult, 0);
 
         // Use the fireEvent to fire Weapons when the Spacebar is pressed.
-        if (Input.GetAxis("Jump") == 1 && fireEvent != null)
-        {
-            fireEvent();
-        }
+        //if (Input.GetAxis("Jump") == 1 && fireEvent != null) { fireEvent(); }
+        if (Input.touchCount > 1 && fireEvent != null) { fireEvent(); }
     }
 
 

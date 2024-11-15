@@ -29,6 +29,7 @@ public class Missile : MonoBehaviour
         {
             Debug.Log(target.transform.position);
             transform.position = Vector3.Lerp(origin, target.transform.position, .3f);
+            origin = gameObject.transform.position;
         }
     }
 }
