@@ -32,7 +32,7 @@ public class Hero : MonoBehaviour
             Debug.LogError("HeroAwake() - Attempted to assign second Hero.S");
         }
         ClearWeapons();
-        weapons[0].SetType(eWeaponType.phaser);
+        weapons[0].SetType(eWeaponType.laser);
         weaponsNum++;
     }
 
@@ -58,6 +58,16 @@ public class Hero : MonoBehaviour
         // Use the fireEvent to fire Weapons when the Spacebar is pressed.
         //if (Input.GetAxis("Jump") == 1 && fireEvent != null) { fireEvent(); }
         if (Input.touchCount > 1 && fireEvent != null) { fireEvent(); }
+        else { switch (weapons[0].type) {
+                case eWeaponType.laser:
+                    if (weapons[0].laserOn == true)
+                        for (int i = 0; i < weaponsNum; i++) { weapons[i].laserOn = false; }
+                    break;
+                case eWeaponType.missile:
+                    if (weapons[0].missileTracking == true)
+                        for (int i = 0;i < weaponsNum; i++) { weapons[i].LaunchMissile(); }
+                    break;
+        } }
     }
 
 

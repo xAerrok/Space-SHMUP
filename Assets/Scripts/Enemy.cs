@@ -70,4 +70,21 @@ public class Enemy : MonoBehaviour
             print("Enemy hit by non-ProjectileHero: "+otherGO.name);
         }
     }
+
+    public void LaserDamage(float damage)
+    {
+        if (bndCheck.isOnScreen)
+        {
+            health -= damage * (Time.deltaTime / 1.0f);
+            if (health <= 0)
+            {
+                if (!calledShipDestroyed)
+                {
+                    calledShipDestroyed= true;
+                    Main.SHIP_DESTROYED(this);
+                }
+                Destroy(gameObject);
+            }
+        }
+    }
 }

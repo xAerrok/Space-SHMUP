@@ -100,4 +100,31 @@ public class Enemy_4 : Enemy
         }
         else Debug.Log("Enemy_4 hit by non-ProjectileHero: "+otherGO.name);
     }
+
+    public void LaserDamage(float dmg, GameObject hitGO)
+    {
+        if (bndCheck.isOnScreen)
+        {
+            bool shieldFound = false;
+            foreach (EnemyShield es in allShields)
+            {
+                if (es.gameObject == hitGO)
+                {
+                    es.TakeDamage(dmg);
+                    shieldFound = true;
+                }
+            }
+            if (!shieldFound) thisShield.TakeDamage(dmg);
+
+            if (thisShield.isActive) return;
+
+            if (!calledShipDestroyed)
+            {
+                Main.SHIP_DESTROYED(this);
+                calledShipDestroyed = true;
+            }
+
+            Destroy(gameObject);
+        }
+    }
 }

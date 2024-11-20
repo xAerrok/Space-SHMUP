@@ -48,9 +48,12 @@ public class Weapon : MonoBehaviour
     private eWeaponType _type = eWeaponType.none;
     public WeaponDefinition def;
     public float nextShotTime; // Time the Weapon will fire next
+    public bool laserOn, missileTracking = false;
+    private GameObject missileTarget;
     
     private GameObject weaponModel;
-    private Transform shotPointTrans; 
+    private Transform shotPointTrans;
+    private LineRenderer line;
 
     void Start()
     {
@@ -62,6 +65,7 @@ public class Weapon : MonoBehaviour
         }
 
         shotPointTrans = transform.GetChild(0);
+        line = GetComponent<LineRenderer>();
 
         // Call SetType() for the default _type set in the Inspector
         SetType(_type);
@@ -144,8 +148,7 @@ public class Weapon : MonoBehaviour
                 break;
 
             case eWeaponType.missile:
-                p = MakeProjectile();
-                p.vel = vel;
+                missileTracking = true;
                 break;
 
             case eWeaponType.swivel:
@@ -169,7 +172,9 @@ public class Weapon : MonoBehaviour
                 p.vel = p.transform.rotation * vel;
                 break;
 
-            case eWeaponType.laser: break;
+            case eWeaponType.laser:
+                laserOn = true;
+                break;
         }
     }
 
@@ -186,5 +191,48 @@ public class Weapon : MonoBehaviour
         p.type = type;
         nextShotTime = Time.time + def.delayBetweenShots;
         return (p);
+    }
+
+    private void Update()
+    {
+        if (!missileTracking || !laserOn) { 
+            line.enabled = false; 
+            return; 
+        }
+
+        line.enabled = true;
+        Ray ray = new Ray(shotPointTrans.position, new Vector3(0, 1, 0));
+        RaycastHit hit;
+        line.SetPosition(0, ray.origin);
+
+        if (Physics.Raycast(ray, out hit))
+        {
+            line.SetPosition(1, hit.point);
+
+            if (hit.collider.gameObject.layer == 7) { // Only target enemies
+                if (type == eWeaponType.missile)
+                    missileTarget = hit.collider.gameObject;
+                else if (type == eWeaponType.laser)
+                {
+                    float dmg = Main.GET_WEAPON_DEFINITION(type).damagePerSec;
+                    Enemy_4 e = hit.collider.gameObject.GetComponent<Enemy_4>();
+                    if (e != null) e.LaserDamage(dmg, hit.collider.gameObject);
+                    else hit.collider.gameObject.GetComponent<Enemy>().LaserDamage(dmg);
+                }
+            }
+        }
+        else if (type == eWeaponType.laser)
+        {
+            line.SetPosition(1, ray.GetPoint(10));
+        }
+    }
+    public void LaunchMissile()
+    {
+        if (missileTarget != null)
+        {
+            ProjectileHero p = MakeProjectile();
+            p.vel = Vector3.up * def.velocity;
+            p.MissileWake(missileTarget.gameObject);
+        }
     }
 }
