@@ -49,11 +49,9 @@ public class Weapon : MonoBehaviour
     public WeaponDefinition def;
     public float nextShotTime; // Time the Weapon will fire next
     public bool laserOn, missileTracking = false;
-    private GameObject missileTarget;
     
     private GameObject weaponModel;
     private Transform shotPointTrans;
-    private LineRenderer line;
 
     void Start()
     {
@@ -65,7 +63,6 @@ public class Weapon : MonoBehaviour
         }
 
         shotPointTrans = transform.GetChild(0);
-        line = GetComponent<LineRenderer>();
 
         // Call SetType() for the default _type set in the Inspector
         SetType(_type);
@@ -192,47 +189,21 @@ public class Weapon : MonoBehaviour
         nextShotTime = Time.time + def.delayBetweenShots;
         return (p);
     }
-
-    private void Update()
+    public ProjectileHero LaserContact(GameObject contact)
     {
-        if (!missileTracking || !laserOn) { 
-            line.enabled = false; 
-            return; 
-        }
-
-        line.enabled = true;
-        Ray ray = new Ray(shotPointTrans.position, new Vector3(0, 1, 0));
-        RaycastHit hit;
-        line.SetPosition(0, ray.origin);
-
-        if (Physics.Raycast(ray, out hit))
-        {
-            line.SetPosition(1, hit.point);
-
-            if (hit.collider.gameObject.layer == 7) { // Only target enemies
-                if (type == eWeaponType.missile)
-                    missileTarget = hit.collider.gameObject;
-                else if (type == eWeaponType.laser)
-                {
-                    float dmg = Main.GET_WEAPON_DEFINITION(type).damagePerSec;
-                    Enemy_4 e = hit.collider.gameObject.GetComponent<Enemy_4>();
-                    if (e != null) e.LaserDamage(dmg, hit.collider.gameObject);
-                    else hit.collider.gameObject.GetComponent<Enemy>().LaserDamage(dmg);
-                }
-            }
-        }
-        else if (type == eWeaponType.laser)
-        {
-            line.SetPosition(1, ray.GetPoint(10));
-        }
+        GameObject go = Instantiate<GameObject>(def.projectilePrefab, shotPointTrans);
+        ProjectileHero p = go.GetComponent<ProjectileHero>();
+        p.transform.position = contact.transform.position;
+        p.type = type;
+        return (p);
     }
-    public void LaunchMissile()
+    public void LaunchMissile(GameObject targetedEnemy)
     {
-        if (missileTarget != null)
+        if (targetedEnemy != null)
         {
             ProjectileHero p = MakeProjectile();
             p.vel = Vector3.up * def.velocity;
-            p.MissileWake(missileTarget.gameObject);
+            p.MissileWake(targetedEnemy);
         }
     }
 }

@@ -4,58 +4,56 @@ using UnityEngine;
 
 public class WeaponMissile : MonoBehaviour
 {
-    public GameObject missilePrefab;
+    public Weapon control;
+    public Transform shotPoint;
     public GameObject targetedEnemy;
     LineRenderer targetGuide;
-    public GameObject tip;
-    bool tracking;
-    List<GameObject> missiles = new List<GameObject>();
+    bool locked = false;
 
     // Start is called before the first frame update
     void Start()
     {
-        targetGuide = tip.GetComponent<LineRenderer>();
+        GameObject parent = gameObject.transform.parent.gameObject;
+        control = parent.GetComponent<Weapon>();
+        shotPoint = parent.GetComponentInChildren<Transform>();
+        targetGuide = gameObject.GetComponent<LineRenderer>();
         targetGuide.enabled = false;
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetButton("Jump"))
+        if (control.missileTracking)
         {
-            tracking = true;
             targetGuide.enabled = true;
-            Ray ray = new Ray(tip.transform.position, new Vector3(0, 1, 0));
+            Ray ray = new Ray(shotPoint.transform.position, new Vector3(0, 1, 0));
             RaycastHit hit;
             targetGuide.SetPosition(0, ray.origin);
 
             if (Physics.Raycast(ray, out hit))
             {
-                if (hit.collider.gameObject.layer == 7) // Only target enemies
+                Enemy e = hit.collider.gameObject.GetComponent<Enemy>(); if (e != null)
+                { // Only target enemies
                     targetedEnemy = hit.collider.gameObject;
-                targetGuide.SetPosition(1, hit.point);
+                    locked = true;
+                    targetGuide.SetPosition(1, hit.point);
+                }
+            }
+            else
+            {
+                if (targetedEnemy == null) targetGuide.SetPosition(1, ray.GetPoint(100));
+                else targetGuide.SetPosition(1, targetedEnemy.transform.position);
             }
         }
         else
         {
-            if (tracking)
+            targetGuide.enabled = false;
+            if (locked)
             {
-                tracking = false;
-                if (targetedEnemy != null)
-                {
-                    targetGuide.enabled = false;
-                    ProjectileHero p;
-                    targetedEnemy = null;
-                }
+                locked = false;
+                control.LaunchMissile(targetedEnemy);
+                targetedEnemy = null;
             }
-        }        
-    }
-
-    void FireMissile(GameObject target)
-    {
-        GameObject go = Instantiate<GameObject>(missilePrefab); Missile missile = go.GetComponent<Missile>();
-        missile.Wake(target, tip.transform.position);
-        missiles.Add(go);
-
+        }
     }
 }

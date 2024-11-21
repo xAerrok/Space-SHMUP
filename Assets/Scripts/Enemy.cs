@@ -52,7 +52,11 @@ public class Enemy : MonoBehaviour
         {
             if (bndCheck.isOnScreen)
             {
-                health -= Main.GET_WEAPON_DEFINITION(p.type).damageOnHit;
+                float dmg;
+                if (p.type != eWeaponType.laser) dmg = Main.GET_WEAPON_DEFINITION(p.type).damageOnHit;
+                else dmg = Main.GET_WEAPON_DEFINITION(p.type).damagePerSec * Time.deltaTime;
+
+                health -= dmg;
                 if (health <= 0)
                 {
                     if (!calledShipDestroyed)
@@ -68,23 +72,6 @@ public class Enemy : MonoBehaviour
         else
         {
             print("Enemy hit by non-ProjectileHero: "+otherGO.name);
-        }
-    }
-
-    public void LaserDamage(float damage)
-    {
-        if (bndCheck.isOnScreen)
-        {
-            health -= damage * (Time.deltaTime / 1.0f);
-            if (health <= 0)
-            {
-                if (!calledShipDestroyed)
-                {
-                    calledShipDestroyed= true;
-                    Main.SHIP_DESTROYED(this);
-                }
-                Destroy(gameObject);
-            }
         }
     }
 }

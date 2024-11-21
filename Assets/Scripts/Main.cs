@@ -19,7 +19,11 @@ public class Main : MonoBehaviour
     public eWeaponType[] powerUpFrequency = new eWeaponType[] {
         eWeaponType.blaster, 
         eWeaponType.blaster, 
-        eWeaponType.spread, 
+        eWeaponType.spread,
+        eWeaponType.phaser,
+        eWeaponType.missile,
+        eWeaponType.laser,
+        eWeaponType.swivel,
         eWeaponType.shield };
 
     private BoundsCheck bndCheck;
@@ -35,9 +39,7 @@ public class Main : MonoBehaviour
 
         WEAP_DICT = new Dictionary<eWeaponType, WeaponDefinition>();
         foreach(WeaponDefinition def in weaponDefinitions)
-        {
             WEAP_DICT[def.type] = def;
-        }
     }
 
     public void SpawnEnemy()
@@ -53,9 +55,8 @@ public class Main : MonoBehaviour
 
         // Position the Enemy above the screen with a random x position
         float enemyInset = enemyInsetDefault;
-        if (go.GetComponent<BoundsCheck>() != null) {
+        if (go.GetComponent<BoundsCheck>() != null) 
             enemyInset = Mathf.Abs(go.GetComponent<BoundsCheck>().radius);
-        }
 
         // Set the initial position for the spawned Enemy
         Vector3 pos = Vector3.zero;

@@ -74,7 +74,9 @@ public class Enemy_4 : Enemy
                     hitGO = coll.contacts[0].otherCollider.gameObject;
                 }
 
-                float dmg = Main.GET_WEAPON_DEFINITION(p.type).damageOnHit;
+                float dmg;
+                if (p.type != eWeaponType.laser) dmg = Main.GET_WEAPON_DEFINITION(p.type).damageOnHit;
+                else dmg = Main.GET_WEAPON_DEFINITION(p.type).damagePerSec * Time.deltaTime;
 
                 bool shieldFound = false;
                 foreach (EnemyShield es in allShields)
@@ -99,32 +101,5 @@ public class Enemy_4 : Enemy
             }
         }
         else Debug.Log("Enemy_4 hit by non-ProjectileHero: "+otherGO.name);
-    }
-
-    public void LaserDamage(float dmg, GameObject hitGO)
-    {
-        if (bndCheck.isOnScreen)
-        {
-            bool shieldFound = false;
-            foreach (EnemyShield es in allShields)
-            {
-                if (es.gameObject == hitGO)
-                {
-                    es.TakeDamage(dmg);
-                    shieldFound = true;
-                }
-            }
-            if (!shieldFound) thisShield.TakeDamage(dmg);
-
-            if (thisShield.isActive) return;
-
-            if (!calledShipDestroyed)
-            {
-                Main.SHIP_DESTROYED(this);
-                calledShipDestroyed = true;
-            }
-
-            Destroy(gameObject);
-        }
     }
 }

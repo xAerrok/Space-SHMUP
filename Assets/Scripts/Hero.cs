@@ -32,7 +32,7 @@ public class Hero : MonoBehaviour
             Debug.LogError("HeroAwake() - Attempted to assign second Hero.S");
         }
         ClearWeapons();
-        weapons[0].SetType(eWeaponType.laser);
+        weapons[0].SetType(eWeaponType.blaster);
         weaponsNum++;
     }
 
@@ -65,7 +65,7 @@ public class Hero : MonoBehaviour
                     break;
                 case eWeaponType.missile:
                     if (weapons[0].missileTracking == true)
-                        for (int i = 0;i < weaponsNum; i++) { weapons[i].LaunchMissile(); }
+                        for (int i = 0;i < weaponsNum; i++) { weapons[i].missileTracking = false; }
                     break;
         } }
     }

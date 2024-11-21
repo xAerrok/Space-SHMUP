@@ -12,7 +12,7 @@ public class ProjectileHero : MonoBehaviour
 
     [Header("Dynamic")]
     public Rigidbody rigid;
-    [SerializeField] 
+    [SerializeField]
     private eWeaponType _type;
 
     // for special handling
@@ -24,9 +24,10 @@ public class ProjectileHero : MonoBehaviour
     // for missile
     [HideInInspector] public GameObject target;
 
-    public eWeaponType type { 
-        get { return _type; } 
-        set { SetType(value); } 
+    public eWeaponType type
+    {
+        get { return _type; }
+        set { SetType(value); }
     }
 
     private void Awake()
@@ -37,8 +38,10 @@ public class ProjectileHero : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update() {
-        if (bndCheck.LocIs(BoundsCheck.eScreenLocs.offUp)) {
+    void Update()
+    {
+        if (bndCheck.LocIs(BoundsCheck.eScreenLocs.offUp))
+        {
             Destroy(gameObject);
         }
         if (live)
@@ -52,7 +55,8 @@ public class ProjectileHero : MonoBehaviour
                     break;
 
                 case eWeaponType.missile:
-                    transform.position = Vector3.Lerp(transform.position, target.transform.position, .3f);
+                    try { transform.position = Vector3.Lerp(transform.position, target.transform.position, .1f); }
+                    catch (MissingReferenceException) { Retarget(); }
                     break;
 
             }
@@ -81,5 +85,11 @@ public class ProjectileHero : MonoBehaviour
     {
         if (target == null) return;
         this.target = target; live = true;
+    }
+
+    private void Retarget()
+    {
+        Enemy e = GameObject.FindObjectOfType<Enemy>();
+        if (e != null) { target = e.gameObject; } else { Debug.LogWarning("No valid target found for missile projectile"); Destroy(gameObject); }
     }
 }
